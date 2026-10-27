@@ -51,9 +51,6 @@ public struct MenuBarSource: Identifiable, Equatable, Sendable {
             let values = matching.compactMap { quota -> Double? in
                 guard quota.issue == nil,
                       let remaining = quota.windows.first(where: { $0.standardPeriod == period })?.remaining else { return nil }
-                if period == .fiveHour, let weekly = quota.windows.first(where: { $0.standardPeriod == .weekly })?.remaining {
-                    return min(remaining, weekly)
-                }
                 return remaining
             }
             return values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
@@ -61,13 +58,7 @@ public struct MenuBarSource: Identifiable, Equatable, Sendable {
         return MenuBarReadout(id: id, title: isProvider ? title : "\(title) · \(detail)",
             detail: isProvider ? "\(title) · account average" : "\(title) · \(detail)",
             fiveHour: average(.fiveHour), weekly: average(.weekly),
-            nextUsefulReset: stale ? nil : QuotaRecovery.nextIncrease(in: matching),
-            fiveHourIsWeeklyCapped: !stale && matching.contains { quota in
-                guard quota.issue == nil,
-                      let five = quota.windows.first(where: { $0.standardPeriod == .fiveHour }),
-                      let weekly = quota.windows.first(where: { $0.standardPeriod == .weekly }) else { return false }
-                return weekly.remaining < five.remaining
-            })
+            nextUsefulReset: stale ? nil : QuotaRecovery.nextIncrease(in: matching))
     }
 }
 
@@ -78,10 +69,8 @@ public struct MenuBarReadout: Identifiable, Equatable, Sendable {
     public let fiveHour: Double?
     public let weekly: Double?
     public let nextUsefulReset: Date?
-    public let fiveHourIsWeeklyCapped: Bool
-    public init(id: String, title: String, detail: String, fiveHour: Double?, weekly: Double?, nextUsefulReset: Date? = nil, fiveHourIsWeeklyCapped: Bool = false) {
+    public init(id: String, title: String, detail: String, fiveHour: Double?, weekly: Double?, nextUsefulReset: Date? = nil) {
         self.id = id; self.title = title; self.detail = detail; self.fiveHour = fiveHour; self.weekly = weekly
-        self.fiveHourIsWeeklyCapped = fiveHourIsWeeklyCapped
         self.nextUsefulReset = nextUsefulReset
     }
     public func text(mode: PercentageMode, window: MenuBarWindow, includeSource: Bool = false) -> String {
@@ -117,7 +106,7 @@ public struct MenuBarReadout: Identifiable, Equatable, Sendable {
         func describe(_ n: Double?, _ label: String) -> String {
             n.map { "\(label): \(mode.formatted($0)) \(mode.suffix)" } ?? "\(label): unavailable"
         }
-        let values = (window == .weekly ? [] : [describe(fiveHour, fiveHourIsWeeklyCapped ? "5-hour (limited by weekly)" : "5-hour")]) +
+        let values = (window == .weekly ? [] : [describe(fiveHour, "5-hour")]) +
             (window == .fiveHour ? [] : [describe(weekly, "Weekly")])
         var descriptions = [detail] + values
         descriptions.append(nextUsefulReset.map { "Next usable reset: " + $0.formatted(date: .complete, time: .complete) + " (estimated; refresh confirms capacity)" }

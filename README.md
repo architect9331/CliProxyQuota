@@ -14,6 +14,10 @@ A small, native macOS app for [CLIProxyAPI](https://github.com/router-for-me/CLI
 
 </div>
 
+## About this fork
+
+This fork of [aduggleby/CliProxyQuota](https://github.com/aduggleby/CliProxyQuota) displays the actual 5-hour and weekly remaining percentages independently in the menu bar. For example, a full 5-hour window and 59% remaining weekly quota display as `⁵ʰ 100% · ʷ 59%`. Regression tests cover individual accounts, provider averages, and used-percentage mode.
+
 ## A quieter way to watch your limits
 
 - **Remaining usage**, with progress bars and reset countdowns for every reported limit. Hover over a countdown to see its full reset date and time in your local timezone.
@@ -22,7 +26,7 @@ A small, native macOS app for [CLIProxyAPI](https://github.com/router-for-me/CLI
 - **Fits your screen**: both views grow to show all content, scrolling only when the popover would exceed the available display height.
 - **Remaining or Used**: one preference updates percentages and bars in both quota views and the menu bar.
 - **5-hour, Weekly, or Both** in the menu bar. Single limits show `72%`; Both shows `⁵ʰ 72% · ʷ 84%`.
-- **Weekly-aware tray quota**: each account contributes the lower of its 5-hour and weekly remaining percentages to the tray’s 5-hour average. A weekly-exhausted account contributes 0%, even if its 5-hour window is full.
+- **Independent tray quotas**: the 5-hour and weekly percentages show their own API-reported remaining values, averaged separately across accounts reporting each window.
 - **Tray warning badges**: each percentage and its window label use white text on a rounded dark yellow/gold background above 10% through 25% remaining and a red background at or below 10%. Colors always reflect remaining capacity, including in Used mode. **Color warnings** in Tray Display is on by default; switch it off for plain tray text. Colored mode separates segments with compact badge padding; plain mode uses dots. The separate **Reset countdown** switch is also on by default and works independently of colors and warning thresholds.
 - **Checkbox source menu**: select provider averages or individual accounts. Each selected source gets its own menu bar item; clear all selections for icon-only mode.
 - **Provider-wide usage forecast**: one sentence in All accounts estimates whether the combined allowance lasts until reset. Enable or disable it under General and choose a 30-, 60-, or 120-minute averaging period.
@@ -111,13 +115,13 @@ HTTPS is the default for remote instances. To use a trusted HTTP instance, expli
 
 <img src="docs/screenshots/overview-used.png" width="420" alt="Used percentages and matching bars across provider quotas" />
 
-### Weekly-aware menu bar percentages
+### Independent menu bar percentages
 
-For each account with both standard windows, the tray’s 5-hour figure is `min(5-hour remaining, weekly remaining)`. Provider sources average these per-account results; the app never caps a provider average using another provider average. Weekly-only readings remain unchanged. If the API omits the weekly window, the reported 5-hour value is used; missing and stale windows show a dash. Review-specific limits are excluded.
+Each tray percentage uses that window's API-reported remaining value. Provider sources average 5-hour and weekly readings independently across accounts reporting each window. Missing and stale windows show a dash. Review-specific limits are excluded.
 
 With **Reset countdown** enabled in Tray Display (the default), an extra `↻` segment estimates when usable allowance next increases. The app evaluates each account’s main 5-hour and weekly windows together, then takes the earliest useful recovery across the selected accounts. A weekly-exhausted account ignores a 5-hour reset that leaves weekly allowance at zero; if both windows are empty, both must reset before that account can recover. With nonzero remaining allowance, the countdown identifies the next increase in the lower of the two windows. Missing blocking reset dates show a dash. A past-due reset shows `due` until a quota refresh confirms it. Hover the tray item for the absolute reset time. This setting applies immediately and is independent of Color warnings; the countdown also appears for healthy readings.
 
-For example, accounts reporting `100% / 0%` and `80% / 60%` contribute `0%` and `60%`, so the provider’s tray 5-hour figure is **30%**. Used mode shows its complement, **70%**. The tooltip identifies when the weekly limit reduces the 5-hour reading. Quota views continue to show each window’s API-reported percentage, and usage forecasts use the observed API values.
+For example, accounts reporting `100% / 0%` and `80% / 60%` produce a tray 5-hour average of **90%** and a weekly average of **30%**. An individual account reporting `100% / 59%` displays **5-hour 100% · Weekly 59%**. Used mode shows each window's complement. Quota views and usage forecasts continue to use the observed API values.
 
 ## Usage forecast
 

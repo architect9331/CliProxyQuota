@@ -21,7 +21,7 @@ final class DisplayPreferencesTests: XCTestCase {
         XCTAssertTrue(missing.tooltip(mode: .used, window: .both).contains("Weekly: unavailable"))
     }
     func testTooltipRetainsMeaningWhenVisibleLabelsAreOmitted() {
-        XCTAssertEqual(readout.tooltip(mode: .used, window: .weekly), "Codex · account average · Weekly: 16% used · Next usable reset unavailable")
+        XCTAssertEqual(readout.tooltip(mode: .used, window: .weekly), "Codex · account average · Weekly: 16% used · Next reset unavailable")
     }
     func quota(_ id: String, provider: String = "codex", five: Double?, weekly: Double?, disabled: Bool = false) -> AccountQuota {
         var windows: [QuotaWindow] = []

@@ -141,7 +141,7 @@ import QuotaCore
         NSAppearance(named: .aqua)!.performAsCurrentDrawingAppearance {
             NSColor.windowBackgroundColor.setFill()
             NSBezierPath(rect: NSRect(x: 0, y: 0, width: 420, height: 100)).fill()
-            let sample = MenuBarReadout(id: "preview", title: "Claude", detail: "Sample data", fiveHour: 8, weekly: 23, nextUsefulReset: Date().addingTimeInterval(8040))
+            let sample = MenuBarReadout(id: "preview", title: "Claude", detail: "Sample data", fiveHour: 8, weekly: 23, nextReset: Date().addingTimeInterval(8040))
             for (mode, y) in [(PercentageMode.remaining, CGFloat(63)), (.used, CGFloat(23))] {
                 (mode.title as NSString).draw(at: NSPoint(x: 20, y: y), withAttributes: [
                     .font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])

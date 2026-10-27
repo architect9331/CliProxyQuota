@@ -16,7 +16,7 @@ A small, native macOS app for [CLIProxyAPI](https://github.com/router-for-me/CLI
 
 ## About this fork
 
-This fork of [aduggleby/CliProxyQuota](https://github.com/aduggleby/CliProxyQuota) displays the actual 5-hour and weekly remaining percentages independently in the menu bar. For example, a full 5-hour window and 59% remaining weekly quota display as `⁵ʰ 100% · ʷ 59%`. Regression tests cover individual accounts, provider averages, and used-percentage mode.
+This fork of [aduggleby/CliProxyQuota](https://github.com/aduggleby/CliProxyQuota) displays the actual 5-hour and weekly remaining percentages independently in the menu bar. For example, a full 5-hour window and 59% remaining weekly quota display as `⁵ʰ 100% · ʷ 59%`. The countdown shows whichever 5-hour or weekly reset comes first. Regression tests cover individual accounts, provider averages, used-percentage mode, and reset selection.
 
 ## A quieter way to watch your limits
 
@@ -39,9 +39,9 @@ This fork of [aduggleby/CliProxyQuota](https://github.com/aduggleby/CliProxyQuot
 
 ## Screenshots
 
-<img src="docs/screenshots/tray-badges.png" width="420" alt="Rounded red and yellow tray badges in Remaining and Used modes, with a third segment showing the next useful reset in 2h 14m" />
+<img src="docs/screenshots/tray-badges.png" width="420" alt="Rounded red and yellow tray badges in Remaining and Used modes, with a third segment showing the next reset in 2h 14m" />
 
-The `↻ 2h 14m` segment shows the next reset that adds usable capacity across the selected accounts, accounting for both 5-hour and weekly limits.
+The `↻ 2h 14m` segment shows the earlier of the reported 5-hour and weekly resets across the selected accounts.
 
 <table>
 <tr>
@@ -119,7 +119,7 @@ HTTPS is the default for remote instances. To use a trusted HTTP instance, expli
 
 Each tray percentage uses that window's API-reported remaining value. Provider sources average 5-hour and weekly readings independently across accounts reporting each window. Missing and stale windows show a dash. Review-specific limits are excluded.
 
-With **Reset countdown** enabled in Tray Display (the default), an extra `↻` segment estimates when usable allowance next increases. The app evaluates each account’s main 5-hour and weekly windows together, then takes the earliest useful recovery across the selected accounts. A weekly-exhausted account ignores a 5-hour reset that leaves weekly allowance at zero; if both windows are empty, both must reset before that account can recover. With nonzero remaining allowance, the countdown identifies the next increase in the lower of the two windows. Missing blocking reset dates show a dash. A past-due reset shows `due` until a quota refresh confirms it. Hover the tray item for the absolute reset time. This setting applies immediately and is independent of Color warnings; the countdown also appears for healthy readings.
+With **Reset countdown** enabled in Tray Display (the default), an extra `↻` segment shows the earliest reported reset among the main 5-hour and weekly windows of the selected accounts. Remaining percentages do not affect the choice: a 5-hour reset in 2 hours takes precedence over a weekly reset in 6 days, even when the weekly percentage is lower. If only one reset date is available, that date is used; if neither is known, the countdown shows a dash. Disabled or failed accounts and review/monthly windows are excluded. A past-due reset shows `due` until a quota refresh confirms it. Hover the tray item for the absolute reset time. This setting applies immediately and is independent of Color warnings.
 
 For example, accounts reporting `100% / 0%` and `80% / 60%` produce a tray 5-hour average of **90%** and a weekly average of **30%**. An individual account reporting `100% / 59%` displays **5-hour 100% · Weekly 59%**. Used mode shows each window's complement. Quota views and usage forecasts continue to use the observed API values.
 

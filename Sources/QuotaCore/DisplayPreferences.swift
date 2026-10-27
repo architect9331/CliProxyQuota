@@ -58,7 +58,7 @@ public struct MenuBarSource: Identifiable, Equatable, Sendable {
         return MenuBarReadout(id: id, title: isProvider ? title : "\(title) · \(detail)",
             detail: isProvider ? "\(title) · account average" : "\(title) · \(detail)",
             fiveHour: average(.fiveHour), weekly: average(.weekly),
-            nextUsefulReset: stale ? nil : QuotaRecovery.nextIncrease(in: matching))
+            nextReset: stale ? nil : QuotaRecovery.nextReset(in: matching))
     }
 }
 
@@ -68,10 +68,10 @@ public struct MenuBarReadout: Identifiable, Equatable, Sendable {
     public let detail: String
     public let fiveHour: Double?
     public let weekly: Double?
-    public let nextUsefulReset: Date?
-    public init(id: String, title: String, detail: String, fiveHour: Double?, weekly: Double?, nextUsefulReset: Date? = nil) {
+    public let nextReset: Date?
+    public init(id: String, title: String, detail: String, fiveHour: Double?, weekly: Double?, nextReset: Date? = nil) {
         self.id = id; self.title = title; self.detail = detail; self.fiveHour = fiveHour; self.weekly = weekly
-        self.nextUsefulReset = nextUsefulReset
+        self.nextReset = nextReset
     }
     public func text(mode: PercentageMode, window: MenuBarWindow, includeSource: Bool = false) -> String {
         parts(mode: mode, window: window, includeSource: includeSource).map(\.text).joined()
@@ -94,7 +94,7 @@ public struct MenuBarReadout: Identifiable, Equatable, Sendable {
         return values.contains { $0 != nil && TrayQuotaSeverity.forRemaining($0) == .critical }
     }
     public func recoveryText(window: MenuBarWindow, now: Date = Date()) -> String? {
-        guard let date = nextUsefulReset else { return "↻ —" }
+        guard let date = nextReset else { return "↻ —" }
         let seconds = date.timeIntervalSince(now)
         guard seconds > 0 else { return "↻ due" }
         let minutes = max(1, Int(ceil(seconds / 60)))
@@ -109,8 +109,8 @@ public struct MenuBarReadout: Identifiable, Equatable, Sendable {
         let values = (window == .weekly ? [] : [describe(fiveHour, "5-hour")]) +
             (window == .fiveHour ? [] : [describe(weekly, "Weekly")])
         var descriptions = [detail] + values
-        descriptions.append(nextUsefulReset.map { "Next usable reset: " + $0.formatted(date: .complete, time: .complete) + " (estimated; refresh confirms capacity)" }
-            ?? "Next usable reset unavailable")
+        descriptions.append(nextReset.map { "Next reset: " + $0.formatted(date: .complete, time: .complete) + " (estimated; refresh confirms capacity)" }
+            ?? "Next reset unavailable")
         return descriptions.joined(separator: " · ")
     }
 }
